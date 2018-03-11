@@ -79,6 +79,7 @@ const PrivateRoute = ({component: Component, ...rest}) => (
   />
 );
 
+//Possible Issues with Commiting
 const Public = () => <h3> Public </h3>
 const Protected = () => <h3> Protected </h3>
 
