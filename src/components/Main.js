@@ -5,6 +5,7 @@ import {Switch, Route} from 'react-router-dom';
 import Homepage from './pages/homePage';
 import About from './pages/about';
 import Login from './pages/login';
+//import Signup from './pages/signup';
 import Contact from './pages/contact';
 
 const Main = () =>(

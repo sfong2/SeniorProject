@@ -32,7 +32,7 @@ class Header extends Component {
 const Header = () => (
     <header>
             <div className="logo">
-                <h1> CJS connection </h1>
+                <h1> CJS Connection </h1>
                 </div>
 
                 <nav>
@@ -41,10 +41,10 @@ const Header = () => (
                             <a> <Link to='/'>Home</Link></a>
                         </li>
                         <li>
-                            <a> <Link to='/about'>About</Link></a>
+                            <a> <Link to='/login'>Login</Link></a> 
                         </li>
                         <li>
-                            <a> <Link to='/login'>Login</Link></a> 
+                            <a> <Link to='/about'>About</Link></a>
                         </li>
                         <li className = "last">
                             <a> <Link to='/contact'>Contact</Link></a>
