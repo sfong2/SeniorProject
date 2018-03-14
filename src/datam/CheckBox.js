@@ -12,7 +12,7 @@ export default class CheckBox extends Component{
             <div className="pretty p-default p-round">
                 <input type="checkbox" defaultChecked onChange={(e) => this.props.onToggleCols(e, this.props.title, this.props.id)}/>
                 <div className="state p-info-o">
-                    <label>{this.props.tile}</label>
+                    <label>{this.props.title}</label>
                 </div>
             </div>
         )
