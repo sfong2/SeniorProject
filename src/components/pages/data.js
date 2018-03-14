@@ -92,7 +92,7 @@ class Data extends Component{
     render(){
         const {data, header, tableCols, settingStatus, settingContent} = this.state;
         return (
-            <div>
+            <div style={divStyle}>
                 <div className="row">
                     <div className="offset-md-1">
                         <ButtonGroup

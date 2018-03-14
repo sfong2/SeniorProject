@@ -2,8 +2,7 @@ import React, {Component} from 'react';
 import DataInput from './DataInput';
 
 const divStyle = {
-    margin: 50, 
-    marginLeft: 50
+    marginLeft: 20
 }
 
 export default class ButtonGroup extends Component{
@@ -23,12 +22,10 @@ export default class ButtonGroup extends Component{
 
     render(){
         return(
-            <div>
-                <div className="row">
-                    <DataInput ref={input => {this.dataInput = input;}} handleFile={this.props.handleFile}/>
-                    <button type="button" className="btn btn-danger" styple={divStyle} onClick={this.clearData}>Clear Data</button>
-                    <button type="button" className="btn btn-info" styple={divStyle} onClick={this.props.onToggleSetting}>{this.props.settingContent}</button>
-                </div>
+            <div className="row">
+                <DataInput ref={input => { this.dataInput = input; }} handleFile={this.props.handleFile}/>
+                <button type="button" className="btn btn-danger" style={divStyle} onClick={this.clearData}>Clear Data</button>
+                <button type="button" className="btn btn-info" style={divStyle} onClick={this.props.onToggleSetting}>{this.props.settingContent}</button>
             </div>
         )
     }
