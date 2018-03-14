@@ -54,7 +54,7 @@ class Data extends Component{
             const wsname = wb.SheetNames[0];
             const ws = wb.Sheets[wsname];
 
-            const data = XLSX.utils.sheet_to_json(ws, {dataNF:"MM/DD/YYY"});
+            const data = XLSX.utils.sheet_to_json(ws, {dataNF:"MM/DD/YYYY"});
             const header = XLSX.utils.sheet_to_json(ws, {header: 1})[0];
             const tableCols = make_header(header);
             this.setState({data:data, header:header, tableCols:tableCols});
@@ -101,7 +101,7 @@ class Data extends Component{
                             settingContent={settingContent}
                             onToggleSetting={this.onToggleSetting}
                             clearData={this.clearData}
-                            handleDile={this.handleFile}
+                            handleFile={this.handleFile}
                         />
                     </div>
                 </div>

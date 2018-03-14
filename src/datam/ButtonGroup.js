@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import DataInput from './DataInput';
 
 const divStyle = {
-    margin: 50, marginLeft: 50
+    margin: 50, 
+    marginLeft: 50
 }
 
 export default class ButtonGroup extends Component{
