@@ -47,6 +47,9 @@ const Header = () => (
                             <a> <Link to='/login2'>Login2</Link></a> 
                         </li>
                         <li>
+                            <a> <Link to='/data'>Data</Link></a>
+                        </li>
+                        <li>
                             <a> <Link to='/about'>About</Link></a>
                         </li>
                         <li className = "last">
