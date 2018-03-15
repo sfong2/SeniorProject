@@ -4,19 +4,55 @@ import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import ButtonGroup from './dataComponent/ButtonGroup';
 import ColSetting from './dataComponent/ColSetting';
-import CheckBox from './dataComponent/CheckBox';
 import LoadingGIF from './dataComponent/loading.gif';
+
+const make_tableCol = (header, i) => {
+  let col = {
+    index: i,
+    Header: header,
+    accessor: header
+  }
+
+  if (header === "Match Type") {
+    col["id"] = header;
+    col["filterMethod"] = (filter, row) => {
+      if (filter.value === "all") {
+        return true;
+      } else if (filter.value === "BROAD") {
+        return row[filter.id] === "BROAD";
+      } else if (filter.value === "PHRASE") {
+        return row[filter.id] === "PHRASE";
+      } else if (filter.value === "EXACT") {
+        return row[filter.id] === "EXACT";
+      }
+    },
+    col["Filter"] = ({ filter, onChange }) =>
+      <select
+        onChange={event => onChange(event.target.value)}
+        style={{ width: "100%" }}
+        value={filter ? filter.value : "all"}
+      >
+        <option value="all">Show All</option>
+        <option value="BROAD">BROAD</option>
+        <option value="PHRASE">PHRASE</option>
+        <option value="EXACT">EXACT</option>
+      </select>
+  }
+  return col;
+}
+
 
 
 const make_cols = headers => {
   let o = [], c = headers.length;
   for(var i = 0; i < c; i++){
     if (default_cols.includes(headers[i])) {
-      o.push({
-        id: i,
-        Header: headers[i],
-        accessor: headers[i],
-      })
+      // o.push({
+      //   id: i,
+      //   Header: headers[i],
+      //   accessor: headers[i],
+      // })
+      o.push(make_tableCol(headers[i], i));
     }
   }
   return o;
@@ -28,12 +64,12 @@ const divStyle = {
   margin: 20
 }
 
-const sortedIndex = (columns, id) => {
+const sortedIndex = (columns, index) => {
   var low = 0, high = columns.length;
 
   while(low < high){
     var mid = (low + high) >>> 1;
-    if (columns[mid].id < id) low = mid + 1;
+    if (columns[mid].index < index) low = mid + 1;
     else high = mid;
   }
   return low;
@@ -58,34 +94,36 @@ export default class App extends Component{
   }
 
   handleFile = (file) => {
-    this.setState({loading: true});
-    const reader = new FileReader();
-    const rABS = !!reader.readAsBinaryString;
-    reader.onload = (e) => {
-      /* Parse data */
-      const bstr = e.target.result;
-      const wb = XLSX.read(bstr, {type:rABS ? 'binary' : 'array', cellDates:true, cellNF: false, cellText: false});
-      /* Get first worksheet */
-      const wsname = wb.SheetNames[0];
-      const ws = wb.Sheets[wsname];
+    this.setState({loading: true}, () => {
+      const reader = new FileReader();
+      const rABS = !!reader.readAsBinaryString;
+      reader.onload = (e) => {
+        /* Parse data */
+        const bstr = e.target.result;
+        const wb = XLSX.read(bstr, {type:rABS ? 'binary' : 'array', cellDates:true, cellNF: false, cellText: false});
+        /* Get first worksheet */
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
 
-      const data = XLSX.utils.sheet_to_json(ws, {dataNF:"MM/DD/YYYY"});
-      const headers = XLSX.utils.sheet_to_json(ws, {header: 1})[0];
-      const columns = make_cols(headers);
+        const data = XLSX.utils.sheet_to_json(ws, {dataNF:"MM/DD/YYYY"});
+        const headers = XLSX.utils.sheet_to_json(ws, {header: 1})[0];
+        const columns = make_cols(headers);
 
-      this.setState({
-        data:data,
-        headers:headers,
-        columns:columns,
-        loading: false
-      });
-    };
+        this.setState({
+          data:data,
+          headers:headers,
+          columns:columns,
+          loading: false
+        });
+      };
 
-    if(rABS){
-      reader.readAsBinaryString(file);
-    }else{
-      reader.readAsArrayBuffer(file);
-    }
+      if(rABS){
+        reader.readAsBinaryString(file);
+      }else{
+        reader.readAsArrayBuffer(file);
+      }
+    });
+
   }
 
   onClickClearBtn = () => {
@@ -107,8 +145,9 @@ export default class App extends Component{
   onClickCheckBox = (e, col, index) => {
     let columns = this.state.columns;
     if(e.target.checked){
-      let cols = {Header: col, accessor: col, id: index}
-      columns.splice(sortedIndex(columns, index), 0, cols);
+      // let cols = {id: index, Header: col, accessor: col}
+      let col = make_tableCol(col, index);
+      columns.splice(sortedIndex(columns, index), 0, col);
     } else{
       columns = columns.filter(item => item.Header !== col)
     }
@@ -118,8 +157,11 @@ export default class App extends Component{
   onResetFiltered = () => {
     this.setState({filtered: []});
   }
+
   render(){
-    console.log(this.state.filtered)
+    let {columns} = this.state;
+    console.log(columns)
+
     return (
       <div style={divStyle}>
         <div className="offset-md-1">
@@ -150,7 +192,12 @@ export default class App extends Component{
           <div style={divStyle}>
             <ReactTable
               data={this.state.data}
-              columns={[].concat(this.state.columns)}
+              columns={
+                [{/*
+                  Header: "Action",
+                  filterable: false,
+                  sortable: false
+                */}].concat(this.state.columns)}
               filterable
               filtered={this.state.filtered}
               onFilteredChange={filtered => this.setState({ filtered })}
