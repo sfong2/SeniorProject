@@ -1,0 +1,37 @@
+{
+    "chart": {
+        "caption": "Suntisfy's Website",
+        "subCaption": "Top keywords searched from 8/28/2017 - 10/22/2017 by searches",
+        "exportenabled": "1",
+        "exportatclient": "1",
+        "exporthandler": "http://export.api3.fusioncharts.com",
+        "html5exporthandler": "http://export.api3.fusioncharts.com",
+        "numberPrefix": " ",
+        "theme": "fint",
+        "anchorBgHoverColor": "#96d7fa",                
+        "anchorBorderHoverThickness" : "4",
+        "anchorHoverRadius":"7"
+    },
+    "data": [
+        {
+            "label": "Toy(s)",
+            "value": "67"
+        },
+        {
+            "label": "Car(s)",
+            "value": "480"
+        },
+        {
+            "label": "Boy",
+            "value": "109"
+        },
+        {
+            "label": "Truck(s)",
+            "value": "81"
+        },
+        {
+            "label": "Police",
+            "value": "130"
+        }
+    ]
+}

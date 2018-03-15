@@ -5,6 +5,45 @@ import CheckBox from '../../datam/CheckBox';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 
+import ReactFC from 'react-fusioncharts';
+import FusionCharts from 'fusioncharts';
+import charts from 'fusioncharts/fusioncharts.charts';
+import data from '../../GraphData/data';
+import data2 from '../../GraphData/data2';
+import data3 from '../../GraphData/data3';
+
+charts(FusionCharts);
+
+var props_column_chart =
+	{
+		id: "line_chart",
+		type: "line",
+		dataSource: data,
+		width: "60%",
+		height: 400,
+		dataFormat: "json"
+	};
+var bargraph=
+	{
+		id: "bar_chart",
+		type: "bar3d",
+		dataSource: data2,
+		width: "60%",
+		height: 400,
+		dataFormat: "json"
+
+	};
+var piechart =
+	{
+		id: "pie_chart",
+		type: "pie3d",
+		dataSource: data3,
+
+		width: "60%",
+		height: 400,
+		dataFormat: "json"
+	};
+
 const divStyle = {
     margin: 20,
 }
@@ -29,6 +68,40 @@ const sortedIndex = (tableCols, value) => {
         return low;
 }
 
+function Graph(props){
+    return(
+        <div>
+		    <ReactFC{...props_column_chart} />
+	    </div>
+    );
+}
+
+function CGraph(props){
+    return(
+        <h1>Nothing</h1>
+    );
+}
+
+function GraphIt(props){
+    return(
+        <button onClick={props.onClick}>Click</button>
+    );
+}
+
+function GraphNo(props){
+    return(
+        <button onClick={props.onClick}>Unclick</button>
+    );
+}
+
+function Graphing(props){
+    const isClick = props.isClick;
+    if(isClick){
+        return <Graph />
+    }
+    return <CGraph />
+}
+
 class Data extends Component{
     constructor(props){
         super(props);
@@ -37,12 +110,24 @@ class Data extends Component{
             settingContent: 'Show Table Cols Settings',
             data: [],
             header: [],
-            tableCols: []
+            tableCols: [],
+            isClicked: false
         }
         this.handleFile = this.handleFile.bind(this);
         this.clearData = this.clearData.bind(this);
         this.onToggleSetting = this.onToggleSetting.bind(this);
         this.onToggleCols = this.onToggleCols.bind(this);
+
+        this.handleClick = this.handleClick.bind(this);
+        this.handleUnclick = this.handleUnclick.bind(this)
+    }
+
+    handleClick(){
+        this.setState({isClick: true});
+    }
+
+    handleUnclick(){
+        this.setState({isClick: false});
     }
 
     handleFile = (file) => {
@@ -90,7 +175,13 @@ class Data extends Component{
     }
 
     render(){
-        const {data, header, tableCols, settingStatus, settingContent} = this.state;
+        const {data, header, tableCols, settingStatus, settingContent, isClick} = this.state;
+        let Gbutton = null;
+        if(isClick){
+            Gbutton = <GraphIt onClick={this.handleUnclick}/>;
+        }else{
+            Gbutton = <GraphNo onClick={this.handleClick}/>;
+        }
         return (
             <div style={divStyle}>
                 <div className="row">
@@ -120,7 +211,6 @@ class Data extends Component{
                         })
                     }
                 </div>
-
                 <div style={divStyle}>
                     <ReactTable
                         data={data}
@@ -132,6 +222,10 @@ class Data extends Component{
                         ].concat(tableCols)}
                         className="-striped -highlight"
                     />
+                </div>
+                <div>
+                    <Graphing isClick={isClick}/>
+                    {Gbutton}
                 </div>
             </div>
         )

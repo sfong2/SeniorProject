@@ -17,16 +17,5 @@ const Homepage = () => (
    
   </div>
 )
-/*
-class Homepage extends Component {
-  render() {
-    return (
-        <div className = "container-fluid">
-            Welcome to CJS Connection!
-        </div>
-    );
-  }
-}*/
-
 
 export default Homepage;

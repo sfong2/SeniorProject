@@ -1,114 +1,69 @@
-/*import React from 'react';
+import React, {Component} from 'react';
+import {connect} from 'react-redux';
+import {login} from '../../redux/reducer';
+import {Redirect} from 'react-router-dom'
 
-const Login = () => (
-  <div className = "container-fluid">
-    Welcome to CJS Connection Login!
-  </div>
-)
+//import {Redirect} from 'react-router-dom';
 
-export default Login;*/
-
-import React from 'react';
-import { BrowserRouter as Router, Route, Link, Redirect, withRouter} from 'react-router-dom';
-
-const Auth = () => (
-  <Router>
-    <div>
-      <AuthButton />
-
-      <ul>
-        <li>
-          <Link to="/public">Public Tools</Link>
-        </li>
-        <li>
-          <Link to="/protected">Private Tools</Link>
-        </li>
-      </ul>
-      <Route path="/public" component={Public}/>
-      <Route path="/login" component={Login}/>
-      <PrivateRoute path="/protected" component={Protected} />
-
-    </div>
-  </Router>
-);
-
-const fakeAuth = {
-  isAuthenticated: false,
-  authenticate(cb){
-    this.isAuthenticated = true;
-    setTimeout(cb, 100);
-  },
-  signout(cb){
-    this.isAuthenticated = false;
-    setTimeout(cb, 100);
-  }
-};
-
-const AuthButton = withRouter(
-  ({history}) =>
-    fakeAuth.isAuthenticated ? (
-      <p>
-        Welcome!{" "}
-        <button
-          onClick={() => {
-            fakeAuth.signout(() => history.push("/"));
-          }}
-          >
-          Sign Out
-        </button>
-      </p>
-    ) : (
-      <p> You are not logged in. </p>
-    )
-);
-
-const PrivateRoute = ({component: Component, ...rest}) => (
-  <Route
-    {...rest}
-    render={props =>
-      fakeAuth.isAuthenticated ? (
-        <Component {...props} />
-      ) : (
-        <Redirect to= {{
-          pathname: "/login",
-          state: {from: props.location}
-        }}
-        />
-      )
-    }
-  />
-);
-
-//Possible Issues with Commiting
-const Public = () => <h3> Public </h3>
-const Protected = () => <h3> Protected </h3>
-
-class Login extends React.Component{
-  state = {
-    redirectToReferrer: false
-  };
-
-  login = () => {
-    fakeAuth.authenticate(() => {
-      this.setState({redirectToReferrer: true});
-    });
-  };
-  
-  render() {
-    const {from} = this.props.location.state || {from: {pathname: "/"}};
-    const {redirectToReferrer} = this.state;
-
-    if(redirectToReferrer){
-      return <Redirect to={from} />;
+class Login extends Component{
+    constructor(props){
+        super(props);
+        this.state = {};
+        this.onSubmit = this.onSubmit.bind(this);
     }
 
-    return(
-      <div>
-        <p> You must log in to view the page at {from.pathname}</p>
-        <button onClick={this.login}>Log in</button>
-      </div>
-    );
-  }
+    render(){
+        let{email, password} = this.state;
+        let {isLoginPending, isLoginSuccess, loginError} = this.props;
+
+        return(
+            <form name="loginForm" onSubmit={this.onSubmit}>
+                <div className ="form-group-collection">
+                    <div className="form-group">
+                        <label>Email:</label>
+                        <input type="email" name="email" onChange={e => this.setState({email: e.target.value})} value={email}/>
+                    </div>
+                    <div className="form-group">
+                        <label>Password:</label>
+                        <input type="password" name="password" onChange={e => this.setState({password: e.target.value})} value={password}/>
+                    </div>
+                </div>
+                <input type="submit" value="Login"/>
+                <div className="message">
+                    {isLoginPending && <div> Please wait...</div>}
+                    {isLoginSuccess && <div> Success.</div>}
+                    {loginError && <div> Incorrect Username or Password.</div>}
+                </div>
+                <div>
+                    {isLoginSuccess && <div><Redirect to='/data'></Redirect></div>}
+                </div>
+            </form>       
+        )
+    }
+
+    onSubmit(e){
+        e.preventDefault();
+        let{email, password} = this.state;
+        this.props.login(email, password);
+        this.setState({
+            email: '',
+            password: ''
+        });
+    }
 }
 
-export default Auth;
+const mapStateToProps = (state) => {
+    return{
+        isLoginPending: state.isLoginPending,
+        isLoginSuccess: state.isLoginSuccess,
+        loginError: state.loginError
+    };
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return{
+        login: (email, password) => dispatch(login(email,password))
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
