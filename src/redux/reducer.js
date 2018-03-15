@@ -42,7 +42,7 @@ function setLoginError(loginError) {
 
 function callLoginApi(email, password, callback){
     setTimeout(() => {
-        if((email === 'sfong2@uci.edu' && password === 'admin')||(email === 'cg@uci.edu' && password === 'admin')){
+        if((email === 'sfong2@uci.edu' && password === 'admin')||(email === 'cg@uci.edu' && password === 'admin')||(email === 'junli@uci.edu' && password === 'admin')){
             return callback(null);
         }else{
             return callback(new Error('Invalid email and password'));
