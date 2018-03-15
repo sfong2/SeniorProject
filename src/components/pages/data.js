@@ -1,235 +1,164 @@
 import React, {Component} from 'react';
 import XLSX from 'xlsx';
-import ButtonGroup from '../../datam/ButtonGroup';
-import CheckBox from '../../datam/CheckBox';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
+import ButtonGroup from './dataComponent/ButtonGroup';
+import ColSetting from './dataComponent/ColSetting';
+import CheckBox from './dataComponent/CheckBox';
+import LoadingGIF from './dataComponent/loading.gif';
 
-import ReactFC from 'react-fusioncharts';
-import FusionCharts from 'fusioncharts';
-import charts from 'fusioncharts/fusioncharts.charts';
-import data from '../../GraphData/data';
-import data2 from '../../GraphData/data2';
-import data3 from '../../GraphData/data3';
 
-charts(FusionCharts);
+const make_cols = headers => {
+  let o = [], c = headers.length;
+  for(var i = 0; i < c; i++){
+    if (default_cols.includes(headers[i])) {
+      o.push({
+        id: i,
+        Header: headers[i],
+        accessor: headers[i],
+      })
+    }
+  }
+  return o;
+}
 
-var props_column_chart =
-	{
-		id: "line_chart",
-		type: "line",
-		dataSource: data,
-		width: "60%",
-		height: 400,
-		dataFormat: "json"
-	};
-var bargraph=
-	{
-		id: "bar_chart",
-		type: "bar3d",
-		dataSource: data2,
-		width: "60%",
-		height: 400,
-		dataFormat: "json"
-
-	};
-var piechart =
-	{
-		id: "pie_chart",
-		type: "pie3d",
-		dataSource: data3,
-
-		width: "60%",
-		height: 400,
-		dataFormat: "json"
-	};
+const default_cols = ["Campaign Name", "Ad Group Name", "Keyword", "Match Type", "Customer Search Term", "Impressions", "Clicks", "Cost Per Click (CPC)", "Spend"]
 
 const divStyle = {
-    margin: 20,
+  margin: 20
 }
 
-const make_header = cols => {
-    let o = [], c = cols.length;
-    for(var i = 0; i < c; i++){
-        o[i] = {Header: cols[i], accessor: cols[i], id: i};
+const sortedIndex = (columns, id) => {
+  var low = 0, high = columns.length;
+
+  while(low < high){
+    var mid = (low + high) >>> 1;
+    if (columns[mid].id < id) low = mid + 1;
+    else high = mid;
+  }
+  return low;
+}
+
+export default class App extends Component{
+  constructor(props){
+    super(props);
+    this.state = {
+      data: [],
+      headers: [],
+      columns: [],
+      tableFiltered: [],
+      loading: false,
+      colBtnStatus: false
     }
-    return o;
-}
+    this.handleFile = this.handleFile.bind(this);
+    this.onClickClearBtn = this.onClickClearBtn.bind(this);
+    this.onClickColBtn = this.onClickColBtn.bind(this);
+    this.onClickCheckBox = this.onClickCheckBox.bind(this);
+    this.onResetFiltered = this.onResetFiltered.bind(this);
+  }
 
-const sortedIndex = (tableCols, value) => {
-    var low = 0,
-        high = tableCols.length;
+  handleFile = (file) => {
+    this.setState({loading: true});
+    const reader = new FileReader();
+    const rABS = !!reader.readAsBinaryString;
+    reader.onload = (e) => {
+      /* Parse data */
+      const bstr = e.target.result;
+      const wb = XLSX.read(bstr, {type:rABS ? 'binary' : 'array', cellDates:true, cellNF: false, cellText: false});
+      /* Get first worksheet */
+      const wsname = wb.SheetNames[0];
+      const ws = wb.Sheets[wsname];
 
-        while(low < high){
-            var mid = (low + high) >>> 1;
-            if (tableCols[mid].id < value) low = mid + 1;
-            else high = mid;
+      const data = XLSX.utils.sheet_to_json(ws, {dataNF:"MM/DD/YYYY"});
+      const headers = XLSX.utils.sheet_to_json(ws, {header: 1})[0];
+      const columns = make_cols(headers);
+
+      this.setState({
+        data:data,
+        headers:headers,
+        columns:columns,
+        loading: false
+      });
+    };
+
+    if(rABS){
+      reader.readAsBinaryString(file);
+    }else{
+      reader.readAsArrayBuffer(file);
+    }
+  }
+
+  onClickClearBtn = () => {
+    this.setState({
+      data: [],
+      headers: [],
+      columns: [],
+      loading: false,
+      colBtnStatus: false,
+    });
+  }
+
+  onClickColBtn = () => {
+    this.setState({
+      colBtnStatus: !this.state.colBtnStatus
+    })
+  }
+
+  onClickCheckBox = (e, col, index) => {
+    let columns = this.state.columns;
+    if(e.target.checked){
+      let cols = {Header: col, accessor: col, id: index}
+      columns.splice(sortedIndex(columns, index), 0, cols);
+    } else{
+      columns = columns.filter(item => item.Header !== col)
+    }
+    this.setState({columns: columns});
+  }
+
+  onResetFiltered = () => {
+    this.setState({filtered: []});
+  }
+  render(){
+    console.log(this.state.filtered)
+    return (
+      <div style={divStyle}>
+        <div className="offset-md-1">
+          <ButtonGroup
+            handleFile={this.handleFile}
+            onClickClearBtn={this.onClickClearBtn}
+            onClickColBtn={this.onClickColBtn}
+            colBtnCaption={this.state.colBtnStatus?"Hide":"Show"}
+            onClickFilterBtn={this.onResetFiltered}
+          />
+        </div>
+
+        <div style = {divStyle}>
+          {this.state.colBtnStatus &&
+            <ColSetting
+              headers={this.state.headers}
+              columns={this.state.columns}
+              onClickCheckBox={this.onClickCheckBox}
+            />
+          }
+        </div>
+
+        {this.state.loading ?
+          <div className="offset-md-1">
+            <img src={LoadingGIF} alt="LoadingGIF"/>
+          </div>
+          :
+          <div style={divStyle}>
+            <ReactTable
+              data={this.state.data}
+              columns={[].concat(this.state.columns)}
+              filterable
+              filtered={this.state.filtered}
+              onFilteredChange={filtered => this.setState({ filtered })}
+              className="-striped -highlight"
+            />
+          </div>
         }
-        return low;
+      </div>
+    )
+  }
 }
-
-function Graph(props){
-    return(
-        <div>
-		    <ReactFC{...props_column_chart} />
-	    </div>
-    );
-}
-
-function CGraph(props){
-    return(
-        <h1>Nothing</h1>
-    );
-}
-
-function GraphIt(props){
-    return(
-        <button onClick={props.onClick}>Click</button>
-    );
-}
-
-function GraphNo(props){
-    return(
-        <button onClick={props.onClick}>Unclick</button>
-    );
-}
-
-function Graphing(props){
-    const isClick = props.isClick;
-    if(isClick){
-        return <Graph />
-    }
-    return <CGraph />
-}
-
-class Data extends Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            settingStatus: false,
-            settingContent: 'Show Table Cols Settings',
-            data: [],
-            header: [],
-            tableCols: [],
-            isClicked: false
-        }
-        this.handleFile = this.handleFile.bind(this);
-        this.clearData = this.clearData.bind(this);
-        this.onToggleSetting = this.onToggleSetting.bind(this);
-        this.onToggleCols = this.onToggleCols.bind(this);
-
-        this.handleClick = this.handleClick.bind(this);
-        this.handleUnclick = this.handleUnclick.bind(this)
-    }
-
-    handleClick(){
-        this.setState({isClick: true});
-    }
-
-    handleUnclick(){
-        this.setState({isClick: false});
-    }
-
-    handleFile = (file) => {
-        const reader = new FileReader();
-        const rABS = !!reader.readAsBinaryString;
-        reader.onload = (e) => {
-            const bstr = e.target.result;
-            const wb = XLSX.read(bstr, {type:rABS ? 'binary' : 'array', cellDates:true, cellNF: false, cellText: false});
-            const wsname = wb.SheetNames[0];
-            const ws = wb.Sheets[wsname];
-
-            const data = XLSX.utils.sheet_to_json(ws, {dataNF:"MM/DD/YYYY"});
-            const header = XLSX.utils.sheet_to_json(ws, {header: 1})[0];
-            const tableCols = make_header(header);
-            this.setState({data:data, header:header, tableCols:tableCols});
-        };
-        if(rABS){
-            reader.readAsBinaryString(file);
-        }else{
-            reader.readAsArrayBuffer(file);
-        }
-    }
-
-    clearData = () => {
-        this.setState({data: [], header: [], tableCols: []});
-    }
-
-    onToggleSetting = () => {
-        let {settingStatus} = this.state;
-        this.setState({
-            settingStatus: !settingStatus,
-            settingContent: settingStatus ? "Show Table Cols Settings" : "Hide Table Cols Setting",
-        })
-    }
-
-    onToggleCols = (e, title, index) => {
-        let tableCols = this.state.tableCols;
-        if(e.target.checked){
-            let cols = {Header: title, accessor: title, id: index}
-            tableCols.splice(sortedIndex(tableCols, index), 0, cols);
-        } else{
-            tableCols = tableCols.filter(item => item.Header !== title)
-        }
-        this.setState({tableCols: tableCols});
-    }
-
-    render(){
-        const {data, header, tableCols, settingStatus, settingContent, isClick} = this.state;
-        let Gbutton = null;
-        if(isClick){
-            Gbutton = <GraphIt onClick={this.handleUnclick}/>;
-        }else{
-            Gbutton = <GraphNo onClick={this.handleClick}/>;
-        }
-        return (
-            <div style={divStyle}>
-                <div className="row">
-                    <div className="offset-md-1">
-                        <ButtonGroup
-                            header={this.state.header}
-                            settingStaus={settingStatus}
-                            settingContent={settingContent}
-                            onToggleSetting={this.onToggleSetting}
-                            clearData={this.clearData}
-                            handleFile={this.handleFile}
-                        />
-                    </div>
-                </div>
-
-                <div style = {divStyle}>
-                    {settingStatus &&
-                        header.map((item, i) => {
-                            return(
-                                <CheckBox
-                                    key={i}
-                                    id={i}
-                                    title={item}
-                                    onToggleCols={this.onToggleCols}
-                                />
-                            )
-                        })
-                    }
-                </div>
-                <div style={divStyle}>
-                    <ReactTable
-                        data={data}
-                        columns={[{
-                            Header: "Action",
-                            accessor: '__rowNum__',
-                            Cell: ({value}) => (<button type="button" onClick={() => {console.log(data[value - 1])}}>Click</button>)
-                        }
-                        ].concat(tableCols)}
-                        className="-striped -highlight"
-                    />
-                </div>
-                <div>
-                    <Graphing isClick={isClick}/>
-                    {Gbutton}
-                </div>
-            </div>
-        )
-    }
-}
-
-export default Data;
