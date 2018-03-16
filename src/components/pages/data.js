@@ -25,7 +25,8 @@ const make_tableCol = (header, i) => {
       } else if (filter.value === "EXACT") {
         return row[filter.id] === "EXACT";
       }
-    },
+    }
+
     col["Filter"] = ({ filter, onChange }) =>
       <select
         onChange={event => onChange(event.target.value)}
@@ -72,7 +73,7 @@ const sortedIndex = (columns, index) => {
   return low;
 }
 
-export default class App extends Component{
+export default class Data extends Component{
   constructor(props){
     super(props);
     this.state = {
@@ -195,7 +196,23 @@ export default class App extends Component{
                 [].concat(this.state.columns)}
               filterable
               filtered={this.state.filtered}
-              onFilteredChange={filtered => this.setState({ filtered })}
+              onFilteredChange={filtered =>
+                this.setState({ filtered }
+              )}
+              getTdProps={(state, rowInfo, column, instance) => {
+                return {
+                  onClick: (e, handleOriginal) => {
+                    let cellInfo = {id: column.id, value: rowInfo.row[column.id]};
+                    let filtered = this.state.filtered;
+                    filtered.push(cellInfo);
+
+                    this.setState({filtered: filtered})
+                    if (handleOriginal) {
+                      handleOriginal()
+                    }
+                  }
+                }
+              }}
               className="-striped -highlight"
             />
           </div>
