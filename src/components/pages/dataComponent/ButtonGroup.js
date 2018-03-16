@@ -6,9 +6,9 @@ const divStyle = {
 }
 
 export default class ButtonGroup extends Component{
-  constructor(props){
-    super(props);
-  }
+  // constructor(props){
+  //   super(props);
+  // }
 
   onClickClearBtn = () => {
     this.inputBtn.inputFile.value = '';

@@ -17,7 +17,7 @@ class Login extends Component{
         let {isLoginPending, isLoginSuccess, loginError} = this.props;
 
         return(
-            <form name="loginForm" onSubmit={this.onSubmit}>
+            <form className="offset-md-5" name="loginForm" onSubmit={this.onSubmit} style={{marginTop: 80}}>
                 <div className ="form-group-collection">
                     <div className="form-group">
                         <label>Email:</label>
@@ -37,7 +37,7 @@ class Login extends Component{
                 <div>
                     {isLoginSuccess && <div><Redirect to='/data'></Redirect></div>}
                 </div>
-            </form>       
+            </form>
         )
     }
 
