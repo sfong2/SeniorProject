@@ -6,13 +6,120 @@ import ButtonGroup from './dataComponent/ButtonGroup';
 import ColSetting from './dataComponent/ColSetting';
 import ActionTable from './dataComponent/ActionTable';
 import LoadingGIF from './dataComponent/loading.gif';
+import ReactFC from 'react-fusioncharts';
+import FusionCharts from 'fusioncharts';
+import charts from 'fusioncharts/fusioncharts.charts';
 
+var chartData = [];
+var cData = {
+  "chart": {
+    "caption": "Suntisfy's Website",
+    "subCaption": "Top keywords searched from 8/28/2017 - 10/22/2017 by searches",
+    "exportenabled": "1",
+    "exportatclient": "1",
+    "exporthandler": "http://export.api3.fusioncharts.com",
+    "html5exporthandler": "http://export.api3.fusioncharts.com",
+    "numberPrefix": " ",
+    "theme": "fint",
+    "anchorBgHoverColor": "#96d7fa",
+    "anchorBorderHoverThickness" : "4",
+    "anchorHoverRadius":"7"
+  },
+  "data": chartData
+}
+charts(FusionCharts);
+/*variables*/
+var props_column_chart =
+	{
+		id: "line_chart",
+		type: "line",
+		dataSource: cData,
+		width: "60%",
+		height: 400,
+		dataFormat: "json"
+	};
+var bargraph =
+	{
+		id: "bar_chart",
+		type: "bar3d",
+		dataSource: cData,
+		width: "60%",
+		height: 400,
+		dataFormat: "json"
+
+	};
+var piechart =
+	{
+		id: "pie_chart",
+		type: "pie3d",
+		dataSource: cData,
+
+		width: "60%",
+		height: 400,
+		dataFormat: "json"
+	};
+/*Render Graph*/
+function Graph(props) {
+	return (
+		<div>
+			<ReactFC{...props_column_chart} />
+		</div>
+	);
+}
+function BGGraph(props) {
+	return (
+		<div>
+			<ReactFC{...bargraph} />
+		</div>
+	);
+}
+function PCGraph(props) {
+	return (
+		<div>
+			<ReactFC{...piechart} />
+		</div>
+	);
+}
+/*Display Heading & Buttons*/
+function Heading(props) {
+	return (<h1>View Graph Displays</h1>);
+}
+function Back(props) {
+	return (<button onClick={props.onClick}>Back</button>);
+}
+function LineGraph(props) {
+	return (<button onClick={props.onClick}>Line Graph</button>);
+}
+function BarGraph(props) {
+	return (<button onClick={props.onClick}>Bar Graph</button>);
+}
+function PieGraph(props) {
+	return (<button onClick={props.onClick}>Pie Chart</button>);
+}
+
+/*Handle Buttons' Click*/
+function LGraphing(props) {
+	const isClick = props.isClick;
+	if (isClick) {
+		return <Graph />
+	}
+	return <Heading />
+}
+function BGraphing(props) {
+	const isClick2 = props.isClick;
+	if (isClick2) {
+		return <BGGraph />
+	}
+	return <h5> </h5>
+}
+function PCGraphing(props) {
+	const isClick3 = props.isClick;
+	if (isClick3) {
+		return <PCGraph />
+	}
+	return <h5> </h5>
+}
 const toFiexed2 = ["Spend", "Cost Per Click (CPC)", "7 Day Total Sales", "7 Day Advertised SKU Sales", "7 Day Other SKU Sales"]
-
-
-
-
-
 
 const default_cols = ["Campaign Name", "Ad Group Name", "Keyword", "Match Type", "Customer Search Term", "Impressions", "Clicks", "Cost Per Click (CPC)", "Spend"]
 
@@ -43,6 +150,8 @@ export default class Data extends Component{
       loading: true,
       colBtnStatus: false,
       actBtnStatus: false,
+      chartBtnStatus: false,
+      isClicked: false
     }
     this.make_tableCol = this.make_tableCol.bind(this);
     this.handleFile = this.handleFile.bind(this);
@@ -53,6 +162,14 @@ export default class Data extends Component{
     this.renderEditable = this.renderEditable.bind(this);
     this.onClickGetTableData = this.onClickGetTableData.bind(this);
     this.onClickActionBtn = this.onClickActionBtn.bind(this);
+
+    //chartFunction
+    this.handleClick = this.handleClick.bind(this);
+		this.handleUnclick = this.handleUnclick.bind(this)
+		this.handleClick2 = this.handleClick2.bind(this);
+		this.handleUnclick2 = this.handleUnclick2.bind(this)
+		this.handleClick3 = this.handleClick3.bind(this);
+    this.handleUnclick3 = this.handleUnclick3.bind(this)
   }
 
   make_tableCol = (header, i) => {
@@ -149,6 +266,7 @@ export default class Data extends Component{
       loading: true,
       colBtnStatus: false,
       actBtnStatus: false,
+      chartBtnStatus: false,
     });
   }
 
@@ -193,9 +311,18 @@ export default class Data extends Component{
 
   onClickGetTableData = () => {
     // console.log(this.reactTable.getResolvedState())
-    console.log(this.reactTable.getResolvedState().sortedData)
+    // console.log(this.reactTable.getResolvedState().sortedData)
     let dataObj = this.reactTable.getResolvedState().sortedData;
+    chartData = [];
+    for (var i = 0, len = dataObj.length; i < len; i++) {
+      let o = {};
+      o["label"] = dataObj[i]["Customer Search Term"];
+      o["value"] = dataObj[i]["Clicks"];
+      chartData.push(o);
+      cData["data"] = chartData;
+    }
 
+    this.setState({chartBtnStatus: !this.state.chartBtnStatus});
   }
 
   onClickActionBtn = () => {
@@ -205,12 +332,63 @@ export default class Data extends Component{
       // actioned: [],
     });
   }
+
+
+  // chart Function
+
+  handleClick() {
+    this.setState({ isClick: true });
+  }
+  handleUnclick() {
+      this.setState({ isClick: false });
+  }
+  handleClick2() {
+      this.setState({ isClick2: true });
+  }
+  handleUnclick2() {
+      this.setState({ isClick2: false });
+  }
+  handleClick3() {
+      this.setState({ isClick3: true });
+  }
+  handleUnclick3() {
+  this.setState({ isClick3: false });
+  }
+
   render(){
+    console.log(cData)
+    const{isClick}=this.state;
+		const{isClick2}=this.state;
+		const{isClick3}=this.state;
+		let LGbutton = null;
+		let BGbutton = null;
+    let PCbutton = null;
+
+    const {data = []} = this.state;
+    const dataStatus = data.length > 0 ? false : true;
+
+    if (isClick) {
+      LGbutton = <Back onClick={this.handleUnclick} />;
+    } else {
+      LGbutton = <LineGraph onClick={this.handleClick} />;
+    }
+    if (isClick2) {
+      BGbutton = <Back onClick={this.handleUnclick2} />;
+    } else {
+      BGbutton = <BarGraph onClick={this.handleClick2} />;
+    }
+    if (isClick3) {
+      PCbutton = <Back onClick={this.handleUnclick3} />;
+    } else {
+      PCbutton = <PieGraph onClick={this.handleClick3} />;
+    }
 
     return (
       <div style={divStyle}>
         <div className="offset-md-1">
           <ButtonGroup
+            dataStatus={dataStatus}
+            dataTableStatus={this.state.actBtnStatus}
             handleFile={this.handleFile}
             onClickClearBtn={this.onClickClearBtn}
             onClickColBtn={this.onClickColBtn}
@@ -237,6 +415,17 @@ export default class Data extends Component{
           </div>
         }
 
+
+        {this.state.chartBtnStatus && !this.state.actBtnStatus &&
+          <div className="offset-md-3">
+            <LGraphing isClick={isClick} />
+            <BGraphing isClick={isClick2} />
+            <PCGraphing isClick={isClick3} />
+            {LGbutton}
+            {BGbutton}
+            {PCbutton}
+          </div>
+        }
         {this.state.actBtnStatus ?
 
           <ActionTable
@@ -253,7 +442,7 @@ export default class Data extends Component{
                   accessor: "action",
                   sortable: false,
                   filterable: false,
-                  Cell: ({value}) => (<button style={{width: "100%", height: "100%"}} onClick={this.getTdProps}>Button</button>)
+                  Cell: ({value}) => (<button style={{width: "100%", height: "100%"}} onClick={this.getTdProps}>Add</button>)
                 }].concat(this.state.columns)}
               filterable
               filtered={this.state.filtered}
@@ -291,6 +480,7 @@ export default class Data extends Component{
                 }
               }}
               className="-striped -highlight"
+              defaultPageSize={10}
             />
           </div>
         }
@@ -298,3 +488,4 @@ export default class Data extends Component{
     )
   }
 }
+

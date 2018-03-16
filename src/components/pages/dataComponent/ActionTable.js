@@ -61,6 +61,7 @@ export default class ActionTable extends Component {
     console.log(this.props.data)
     return (
       <div>
+        <button className="btn btn-success">Download Operation File</button>
         <ReactTable
           data={this.state.data}
           columns={this.state.columns}
