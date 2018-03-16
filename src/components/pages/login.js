@@ -17,7 +17,8 @@ class Login extends Component{
         let {isLoginPending, isLoginSuccess, loginError} = this.props;
 
         return(
-            <form className="offset-md-5" name="loginForm" onSubmit={this.onSubmit} style={{marginTop: 80}}>
+            /*
+            <form className="offset-md-5" name="loginForm" onSubmit={this.onSubmit} style={{marginTop: 100}}>
                 <div className ="form-group-collection">
                     <div className="form-group">
                         <label>Email:</label>
@@ -28,7 +29,37 @@ class Login extends Component{
                         <input type="password" name="password" onChange={e => this.setState({password: e.target.value})} value={password}/>
                     </div>
                 </div>
-                <input type="submit" value="Login"/>
+
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">@</span>
+                    </div>
+                    <input type="email" name="email" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1" onChange={e => this.setState({email: e.target.value})} value={email}/>
+                </div>
+
+                <button type="submit" class="btn btn-outline-primary" value="Login">Login</button>
+                <div className="message">
+                    {isLoginPending && <div> Please wait...</div>}
+                    {isLoginSuccess && <div> Success.</div>}
+                    {loginError && <div> Incorrect Username or Password.</div>}
+                </div>
+                <div>
+                    {isLoginSuccess && <div><Redirect to='/data'></Redirect></div>}
+                </div>
+            </form>*/
+            <form className="offset-md-4" name="loginForm" onSubmit={this.onSubmit} style={{marginTop: 100}}>
+                <div className = "col-md-6">
+                <div className="form-group">
+                    <label for="exampleInputEmail1">Email address</label>
+                    <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" onChange={e => this.setState({email: e.target.value})} value={email}/>
+                    <medium id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</medium>
+                </div>
+                <div className="form-group">
+                    <label for="exampleInputPassword1">Password</label>
+                    <input type="password" name="password" class="form-control" id="exampleInputPassword1" placeholder="Password" onChange={e => this.setState({password: e.target.value})} value={password}/>
+                </div>
+                <button type="submit" class="btn btn-outline-primary" value="Login">Login</button>
+                </div>
                 <div className="message">
                     {isLoginPending && <div> Please wait...</div>}
                     {isLoginSuccess && <div> Success.</div>}
