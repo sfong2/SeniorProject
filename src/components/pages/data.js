@@ -194,6 +194,8 @@ export default class Data extends Component{
   onClickGetTableData = () => {
     // console.log(this.reactTable.getResolvedState())
     console.log(this.reactTable.getResolvedState().sortedData)
+    let dataObj = this.reactTable.getResolvedState().sortedData;
+
   }
 
   onClickActionBtn = () => {
