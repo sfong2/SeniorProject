@@ -4,6 +4,7 @@ import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import ButtonGroup from './dataComponent/ButtonGroup';
 import ColSetting from './dataComponent/ColSetting';
+import ActionTable from './dataComponent/ActionTable';
 import LoadingGIF from './dataComponent/loading.gif';
 
 const toFiexed2 = ["Spend", "Cost Per Click (CPC)", "7 Day Total Sales", "7 Day Advertised SKU Sales", "7 Day Other SKU Sales"]
@@ -40,7 +41,8 @@ export default class Data extends Component{
       filtered: [],
       actioned: [],
       loading: true,
-      colBtnStatus: false
+      colBtnStatus: false,
+      actBtnStatus: false,
     }
     this.make_tableCol = this.make_tableCol.bind(this);
     this.handleFile = this.handleFile.bind(this);
@@ -48,9 +50,9 @@ export default class Data extends Component{
     this.onClickColBtn = this.onClickColBtn.bind(this);
     this.onClickCheckBox = this.onClickCheckBox.bind(this);
     this.onResetFiltered = this.onResetFiltered.bind(this);
-    this.onClickTableSetFilter = this.onClickTableSetFilter.bind(this);
     this.renderEditable = this.renderEditable.bind(this);
     this.onClickGetTableData = this.onClickGetTableData.bind(this);
+    this.onClickActionBtn = this.onClickActionBtn.bind(this);
   }
 
   make_tableCol = (header, i) => {
@@ -143,8 +145,10 @@ export default class Data extends Component{
       headers: [],
       columns: [],
       filtered: [],
+      actioned: [],
       loading: true,
       colBtnStatus: false,
+      actBtnStatus: false,
     });
   }
 
@@ -167,11 +171,6 @@ export default class Data extends Component{
 
   onResetFiltered = () => {
     this.setState({filtered: []});
-  }
-
-  onClickTableSetFilter = (cellInfo) => {
-    let filtered = this.state.filtered;
-    this.setState({filtered: filtered.push(cellInfo)});
   }
 
   renderEditable = (cellInfo) => {
@@ -198,8 +197,11 @@ export default class Data extends Component{
   }
 
   onClickActionBtn = () => {
-    this.reactTable.getTdProps;
-
+    // this.reactTable.getTdProps;
+    this.setState({
+      actBtnStatus: !this.state.actBtnStatus,
+      // actioned: [],
+    });
   }
   render(){
 
@@ -213,6 +215,7 @@ export default class Data extends Component{
             colBtnCaption={this.state.colBtnStatus?"Hide":"Show"}
             onClickFilterBtn={this.onResetFiltered}
             onClickGetTableData={this.onClickGetTableData}
+            onClickActionBtn={this.onClickActionBtn}
           />
         </div>
 
@@ -232,50 +235,63 @@ export default class Data extends Component{
           </div>
         }
 
-        <div style={divStyle}>
-          <ReactTable
-            ref={el => this.reactTable = el}
-            data={this.state.data}
-            columns={
-              [{
-                Header: "Action",
-                accessor: "action",
-                sortable: false,
-                filterable: false,
-                Cell: ({value}) => (<button style={{width: "100%", height: "100%"}} onClick={this.reactTable.getTdProps}>Button</button>)
-              }].concat(this.state.columns)}
-            filterable
-            filtered={this.state.filtered}
-            onFilteredChange={filtered =>
-              this.setState({ filtered }
-            )}
-            getTdProps={(state, rowInfo, column, instance) => {
-              return {
-                onClick: (e, handleOriginal) => {
+        {this.state.actBtnStatus ?
 
-                  if (rowInfo) {
-                    let id = column.id, value = rowInfo.original[id];
-                    if (id === "action") {
-                      console.log(rowInfo.original)
-                    } else if (id !== "Customer Search Term") {
-                      let cellInfo = {id: id, value: value};
-                      let filtered = this.state.filtered;
-                      if (!filtered.some(filterItem => filterItem.id === id)) {
-                        filtered.push(cellInfo);
+          <ActionTable
+            data={this.state.actioned}
+          />
+          :
+          <div style={divStyle}>
+            <ReactTable
+              ref={el => this.reactTable = el}
+              data={this.state.data}
+              columns={
+                [{
+                  Header: "Action",
+                  accessor: "action",
+                  sortable: false,
+                  filterable: false,
+                  Cell: ({value}) => (<button style={{width: "100%", height: "100%"}} onClick={this.getTdProps}>Button</button>)
+                }].concat(this.state.columns)}
+              filterable
+              filtered={this.state.filtered}
+              onFilteredChange={filtered =>
+                this.setState({ filtered }
+              )}
+              getTdProps={(state, rowInfo, column, instance) => {
+                return {
+                  onClick: (e, handleOriginal) => {
+
+                    if (rowInfo) {
+                      let id = column.id, row = rowInfo.original;
+                      if (id === "action") {
+                        let actioned = this.state.actioned;
+                        if (!actioned.some(item => item.__rowNum__ === row.__rowNum__)) {
+                          actioned.push(row)
+                          console.log(actioned)
+                          this.setState({actioned: actioned})
+
+                        }
+                      } else if (id !== "Customer Search Term") {
+                        let cellInfo = {id: id, value: row[id]};
+                        let filtered = this.state.filtered;
+                        if (!filtered.some(filterItem => filterItem.id === id)) {
+                          filtered.push(cellInfo);
+                          this.setState({filtered: filtered})
+                        }
+                        console.log(filtered)
                       }
-                      console.log(filtered)
-                      this.setState({filtered: filtered})
+                    }
+                    if (handleOriginal) {
+                      handleOriginal()
                     }
                   }
-                  if (handleOriginal) {
-                    handleOriginal()
-                  }
                 }
-              }
-            }}
-            className="-striped -highlight"
-          />
-        </div>
+              }}
+              className="-striped -highlight"
+            />
+          </div>
+        }
       </div>
     )
   }
