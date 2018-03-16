@@ -37,21 +37,18 @@ const make_tableCol = (header, i) => {
         <option value="PHRASE">PHRASE</option>
         <option value="EXACT">EXACT</option>
       </select>
+  } else if (header === "Campaign Name") {
+
   }
+
   return col;
 }
-
 
 
 const make_cols = headers => {
   let o = [], c = headers.length;
   for(var i = 0; i < c; i++){
     if (default_cols.includes(headers[i])) {
-      // o.push({
-      //   id: i,
-      //   Header: headers[i],
-      //   accessor: headers[i],
-      // })
       o.push(make_tableCol(headers[i], i));
     }
   }
@@ -82,8 +79,8 @@ export default class App extends Component{
       data: [],
       headers: [],
       columns: [],
-      tableFiltered: [],
-      loading: false,
+      filtered: [],
+      loading: true,
       colBtnStatus: false
     }
     this.handleFile = this.handleFile.bind(this);
@@ -91,6 +88,7 @@ export default class App extends Component{
     this.onClickColBtn = this.onClickColBtn.bind(this);
     this.onClickCheckBox = this.onClickCheckBox.bind(this);
     this.onResetFiltered = this.onResetFiltered.bind(this);
+    this.onClickTableSetFilter = this.onClickTableSetFilter.bind(this);
   }
 
   handleFile = (file) => {
@@ -131,7 +129,7 @@ export default class App extends Component{
       data: [],
       headers: [],
       columns: [],
-      loading: false,
+      loading: true,
       colBtnStatus: false,
     });
   }
@@ -142,14 +140,13 @@ export default class App extends Component{
     })
   }
 
-  onClickCheckBox = (e, col, index) => {
+  onClickCheckBox = (e, header, index) => {
     let columns = this.state.columns;
     if(e.target.checked){
-      // let cols = {id: index, Header: col, accessor: col}
-      let col = make_tableCol(col, index);
+      let col = make_tableCol(header, index);
       columns.splice(sortedIndex(columns, index), 0, col);
     } else{
-      columns = columns.filter(item => item.Header !== col)
+      columns = columns.filter(item => item.Header !== header)
     }
     this.setState({columns: columns});
   }
@@ -158,9 +155,11 @@ export default class App extends Component{
     this.setState({filtered: []});
   }
 
+  onClickTableSetFilter = (cellInfo) => {
+    let filtered = this.state.filtered;
+    this.setState({filtered: filtered.push(cellInfo)});
+  }
   render(){
-    let {columns} = this.state;
-    console.log(columns)
 
     return (
       <div style={divStyle}>
@@ -193,11 +192,7 @@ export default class App extends Component{
             <ReactTable
               data={this.state.data}
               columns={
-                [{/*
-                  Header: "Action",
-                  filterable: false,
-                  sortable: false
-                */}].concat(this.state.columns)}
+                [].concat(this.state.columns)}
               filterable
               filtered={this.state.filtered}
               onFilteredChange={filtered => this.setState({ filtered })}
