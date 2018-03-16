@@ -202,11 +202,15 @@ export default class Data extends Component{
               getTdProps={(state, rowInfo, column, instance) => {
                 return {
                   onClick: (e, handleOriginal) => {
-                    let cellInfo = {id: column.id, value: rowInfo.row[column.id]};
-                    let filtered = this.state.filtered;
-                    filtered.push(cellInfo);
+                    let id = column.id, value = rowInfo.row[id];
+                    if (id !== "Customer Search Term") {
+                      let cellInfo = {id: id, value: value};
+                      let filtered = this.state.filtered;
+                      filtered.push(cellInfo);
 
-                    this.setState({filtered: filtered})
+                      this.setState({filtered: filtered})
+                    }
+
                     if (handleOriginal) {
                       handleOriginal()
                     }
