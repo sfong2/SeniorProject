@@ -6,6 +6,7 @@
     "fusioncharts": "^3.12.2",
     "history": "^4.7.2",
     "react": "^16.2.0",
+    "react-csv": "^1.0.14",
     "react-dom": "^16.2.0",
     "react-fusioncharts": "^1.0.4",
     "react-redux": "^5.0.7",

@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import XLSX from 'xlsx';
+// import XLSX from 'xlsx';
+import {CSVLink} from 'react-csv';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 const headers = ["Campaign Name", "Campaign Daily Budget", "Campaign Start Date", "Campaign End Date", "Campaign Targeting Type",	"Ad Group Name", "Max Bid", "SKU", "Keyword", "Match Type", "Campaign Status", "Ad Group Status", "Status", "Bid+"];
@@ -10,6 +11,7 @@ export default class ActionTable extends Component {
     this.state = {
       data: this.props.data,
       columns: [],
+      downloadData: [],
     }
 
     this.renderEditable = this.renderEditable.bind(this);
@@ -63,19 +65,44 @@ export default class ActionTable extends Component {
   }
 
   onClickDownloadFile = () => {
-    /* convert state to workbook */
-    const ws = XLSX.utils.aoa_to_sheet(this.state.data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "SheetJS");
-    /* generate XLSX file and send to client */
-    XLSX.writeFile(wb, "sheetjs.xlsx")
+    let data = this.actTable.getResolvedState().sortedData;
+    for (var i = 0, len = data.length; i < len; i++) {
+      Object.defineProperty(data[i], "Keyword",
+        Object.getOwnPropertyDescriptor(data[i], "Customer Search Term"));
+      delete data[i]["Customer Search Term"];
+    }
+
+    let downloadData = data.map(item => ({
+      "Campaign Name" : item["Campaign Name"],
+      "Campaign Daily Budget" : item["Campaign Daily Budget"],
+      "Campaign Start Date": item["Campaign Start Date"],
+      "Campaign End Date": item["Campaign End Date"],
+      "Campaign Targeting Type": item["Campaign Targeting Type"],
+      "Ad Group Name": item["Ad Group Name"],
+      "Max Bid": item["Max Bid"],
+      "SKU": item["SKU"],
+      "Keyword": item["Keyword"],
+      "Match Type": item["Match Type"],
+      "Campaign Status": item["Campaign Status"],
+      "Ad Group Status": item["Ad Group Status"],
+      "Status": item["Status"],
+      "Bid+": item["Bid+"]
+    }))
+    this.setState({downloadData});
   }
 
   render() {
     return (
       <div>
-        <button className="btn btn-success" onClick={this.onClickDownloadFile}>Download Operation File</button>
+        <button className="btn btn-success" onClick={this.onClickDownloadFile}>Generate Download Data</button>
+        <CSVLink data={this.state.downloadData}
+          filename={"my-file.csv"}
+          className="btn btn-primary"
+          target="_blank">
+            Download me
+        </CSVLink>
         <ReactTable
+          ref={el => this.actTable = el}
           data={this.state.data}
           columns={[{
             Header: "Action",
