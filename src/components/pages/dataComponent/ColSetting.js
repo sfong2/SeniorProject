@@ -5,7 +5,6 @@ export default class ColSetting extends Component {
 
   render() {
 
-
     return (
       this.props.headers.map((header, i) => {
         return (
