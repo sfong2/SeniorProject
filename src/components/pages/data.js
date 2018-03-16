@@ -38,6 +38,7 @@ export default class Data extends Component{
       headers: [],
       columns: [],
       filtered: [],
+      actioned: [],
       loading: true,
       colBtnStatus: false
     }
@@ -173,7 +174,7 @@ export default class Data extends Component{
     this.setState({filtered: filtered.push(cellInfo)});
   }
 
-  renderEditable(cellInfo) {
+  renderEditable = (cellInfo) => {
     return (
       <div
         style={{ backgroundColor: "#fafafa" }}
@@ -194,6 +195,11 @@ export default class Data extends Component{
   onClickGetTableData = () => {
     // console.log(this.reactTable.getResolvedState())
     console.log(this.reactTable.getResolvedState().sortedData)
+  }
+
+  onClickActionBtn = () => {
+    this.reactTable.getTdProps;
+
   }
   render(){
 
@@ -231,7 +237,13 @@ export default class Data extends Component{
             ref={el => this.reactTable = el}
             data={this.state.data}
             columns={
-              [].concat(this.state.columns)}
+              [{
+                Header: "Action",
+                accessor: "action",
+                sortable: false,
+                filterable: false,
+                Cell: ({value}) => (<button style={{width: "100%", height: "100%"}} onClick={this.reactTable.getTdProps}>Button</button>)
+              }].concat(this.state.columns)}
             filterable
             filtered={this.state.filtered}
             onFilteredChange={filtered =>
@@ -242,12 +254,16 @@ export default class Data extends Component{
                 onClick: (e, handleOriginal) => {
 
                   if (rowInfo) {
-                    let id = column.id, value = rowInfo.row[id];
-                    if (id !== "Customer Search Term") {
+                    let id = column.id, value = rowInfo.original[id];
+                    if (id === "action") {
+                      console.log(rowInfo.original)
+                    } else if (id !== "Customer Search Term") {
                       let cellInfo = {id: id, value: value};
                       let filtered = this.state.filtered;
-                      filtered.push(cellInfo);
-
+                      if (!filtered.some(filterItem => filterItem.id === id)) {
+                        filtered.push(cellInfo);
+                      }
+                      console.log(filtered)
                       this.setState({filtered: filtered})
                     }
                   }
