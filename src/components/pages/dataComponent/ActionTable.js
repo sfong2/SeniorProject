@@ -116,8 +116,10 @@ export default class ActionTable extends Component {
                       let id = column.id, row = rowInfo.original;
                       if (id === "action") {
                         let data = this.state.data;
-                        data = data.filter(item => item.__rowNum__ !== row.__rowNum__);
+                        let rowNum = row.__rowNum__;
+                        data = data.filter(item => item.__rowNum__ !== rowNum);
                         this.setState({data: data})
+                        this.props.onClickRemoveBtn(rowNum);
                       }
                     }
                     if (handleOriginal) {

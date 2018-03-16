@@ -162,7 +162,8 @@ export default class Data extends Component{
     this.renderEditable = this.renderEditable.bind(this);
     this.onClickGetTableData = this.onClickGetTableData.bind(this);
     this.onClickActionBtn = this.onClickActionBtn.bind(this);
-
+    //click on action table to remove data from this.state.actioned
+    this.onClickRemoveBtn = this.onClickRemoveBtn.bind(this);
     //chartFunction
     this.handleClick = this.handleClick.bind(this);
 		this.handleUnclick = this.handleUnclick.bind(this)
@@ -274,6 +275,12 @@ export default class Data extends Component{
     this.setState({
       colBtnStatus: !this.state.colBtnStatus
     })
+  }
+
+  onClickRemoveBtn = (rowNum) => {
+    let actioned = this.state.actioned;
+    actioned = actioned.filter(item => item.__rowNum__ !== rowNum);
+    this.setState({actioned: actioned});
   }
 
   onClickCheckBox = (e, header, index) => {
@@ -430,6 +437,7 @@ export default class Data extends Component{
 
           <ActionTable
             data={this.state.actioned}
+            onClickRemoveBtn={this.onClickRemoveBtn}
           />
           :
           <div style={divStyle}>
