@@ -21,7 +21,8 @@ export default class ButtonGroup extends Component{
           <InputButton ref={el => { this.inputBtn = el; }} handleFile={this.props.handleFile}/>
           <button type="button" className="btn btn-danger" style={divStyle} onClick={this.onClickClearBtn}>Clear Data</button>
           <button type="button" className="btn btn-info" style={divStyle} onClick={this.props.onClickColBtn}>{this.props.colBtnCaption} Col Setting</button>
-          <button type="button" className="btn btn-success" style={divStyle} onClick={this.props.onClickFilterBtn}> Reset Filtered</button>
+          <button type="button" className="btn btn-success" style={divStyle} onClick={this.props.onClickFilterBtn}>Reset Filtered</button>
+          <button type="button" className="btn btn-warning" style={divStyle} onClick={this.props.onClickGetTableData}>Export Data</button>
       </div>
     )
   }
